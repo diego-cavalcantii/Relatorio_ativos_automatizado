@@ -76,20 +76,22 @@ def atualizar_tabela(titulo_p, titulo_u, valor_p, sheet):
     while True:
         try:
             # Converta as coordenadas das células
-            col_primeira_conv = titulo_p.lower().rstrip('0123456789')
-            row_primeia_conv = int(titulo_p[len(col_primeira_conv):])
-            col_ultima_conv = titulo_u.lower().rstrip('0123456789')
-            row_ultima_conv = int(titulo_u[len(col_ultima_conv):])
+            col_primeira_conv = titulo_p.lower().rstrip('0123456789') # Ex: 'B'
+            row_primeia_conv = int(titulo_p[len(col_primeira_conv):]) # Ex: 5
+            col_ultima_conv = titulo_u.lower().rstrip('0123456789') # Ex: 'B'
+            row_ultima_conv = int(titulo_u[len(col_ultima_conv):]) # Ex: 10
         except ValueError:
             print("Erro ao converter coordenadas das células. Verifique os valores de entrada.")
-            titulo_p = input("Digite novamente a posição do primeiro título (ex: B5): ")
+            if titulo_p == 0:
+                titulo_p = input("Digite novamente a posição do primeiro título (ex: B5): ")
             titulo_u = input("Digite novamente a posição do último título (ex: B10): ")
             continue
 
         # Verifique se as colunas são iguais
         if col_primeira_conv != col_ultima_conv:
             print("As colunas das células inicial e final devem ser iguais. Tente novamente.")
-            titulo_p = input("Digite novamente a posição do primeiro título (ex: B5): ")
+            if titulo_p == 0:
+                    titulo_p = input("Digite novamente a posição do primeiro título (ex: B5): ")
             titulo_u = input("Digite novamente a posição do último título (ex: B10): ")
             continue
 
@@ -108,14 +110,26 @@ def atualizar_tabela(titulo_p, titulo_u, valor_p, sheet):
 
     try:
         # Extraia a coluna e a linha da posição da célula inicial
-        coluna_ativo = valor_p.rstrip('0123456789')
-        linha_inicial = int(valor_p[len(coluna_ativo):])
+        coluna_ativo = valor_p.rstrip('0123456789') # Ex: 'B'
+        linha_inicial = int(valor_p[len(coluna_ativo):]) # Ex: 6
 
         # Percorra a lista e peça inputs ao usuário para cada célula
         for i in range(len(valores)):
-            celula_atual = f'{coluna_ativo}{linha_inicial + i}'
-            valor = input(f"Digite o valor para {valores[i]}: ")
-            sheet.range(celula_atual).value = valor
+            celula_atual = f'{coluna_ativo}{linha_inicial + i}'  # Ex: 'B6'
+            while True:
+                valor = input(f"Digite o valor para {valores[i]} (ou pressione Enter para manter o valor existente): ")
+                if valor == "":
+                    # Se o usuário pressionar Enter, simplesmente sai do loop sem fazer nada
+                    break
+                elif valor.isnumeric():
+                    # Se o valor inserido for numérico, permite a inserção e substitui o valor na célula
+                    sheet.range(celula_atual).value = valor
+                    break
+                else:
+                    # Se o valor inserido não for numérico, exibe uma mensagem de erro
+                    print("Valor inválido. Por favor, insira um número.")
+
+
     except ValueError:
         raise ValueError("Erro ao converter coordenadas das células de valores. Verifique os valores de entrada.")
     except Exception as e:
